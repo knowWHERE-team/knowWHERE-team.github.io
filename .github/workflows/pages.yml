@@ -26,10 +26,30 @@ jobs:
 
       - name: Prepare site content
         run: |
+          # If `web/` is source code, build it; if it's already static, this is a no-op.
+          if [ ! -f web/index.html ] && [ -f web/package.json ]; then
+            (cd web && npm ci && npm run build)
+          fi
+
+          SITE_SRC="web"
+          if [ -f web/index.html ]; then
+            SITE_SRC="web"
+          elif [ -f web/dist/index.html ]; then
+            SITE_SRC="web/dist"
+          elif [ -f web/build/index.html ]; then
+            SITE_SRC="web/build"
+          elif [ -f web/out/index.html ]; then
+            SITE_SRC="web/out"
+          else
+            echo "No index.html found under web/, web/dist, web/build, or web/out"
+            ls -la web
+            exit 1
+          fi
+
           rm -rf public
-          mkdir -p public public/web
-          cp -r web/. public/
-          cp -r web/. public/web/
+          mkdir -p public
+          cp -r "$SITE_SRC"/. public/
+          touch public/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
         with:
