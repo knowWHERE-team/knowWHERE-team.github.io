@@ -22,6 +22,7 @@ jobs:
         with:
           repository: knowWHERE-team/knowWHERE
           ref: main
+          token: ${{ secrets.KNOWWHERE_REPO_TOKEN }}
 
       - name: Prepare site content
         run: |
@@ -37,5 +38,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    environment:
+      name: github-pages
     steps:
       - uses: actions/deploy-pages@v4
